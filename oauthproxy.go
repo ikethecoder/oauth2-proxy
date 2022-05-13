@@ -667,6 +667,8 @@ func (p *OAuthProxy) SignOut(rw http.ResponseWriter, req *http.Request) {
 func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 	prepareNoCache(rw)
 
+	extraParams := req.URL.Query()
+
 	csrf, err := cookies.NewCSRF(p.CookieOptions)
 	if err != nil {
 		logger.Errorf("Error creating CSRF nonce: %v", err)
@@ -686,6 +688,7 @@ func (p *OAuthProxy) OAuthStart(rw http.ResponseWriter, req *http.Request) {
 		callbackRedirect,
 		encodeState(csrf.HashOAuthState(), appRedirect),
 		csrf.HashOIDCNonce(),
+		extraParams,
 	)
 
 	if _, err := csrf.SetCookie(rw, req); err != nil {
